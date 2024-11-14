@@ -353,13 +353,13 @@ const sendEmailToServer = async (formData, codeInfo) => {
         const response = await fetch(`/send-email?${params.toString()}`, {
             method: 'GET',
             headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
+                'Accept': 'application/json'
             }
         });
 
-        if (!response.ok) {
-            throw new Error('Server responded with error');
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            throw new Error('Server returned invalid response format');
         }
 
         const data = await response.json();

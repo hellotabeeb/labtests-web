@@ -55,25 +55,28 @@ const validateEmailRequest = (req, res, next) => {
 };
 
 app.get('/send-email', validateEmailRequest, async (req, res) => {
-    const requestId = Date.now();
-    const { name, email, phone, testName, testFee, discountCode } = req.query;
+    // Set response headers early
+    res.setHeader('Content-Type', 'application/json');
     
-    logger.info('Starting email send process', { requestId, email });
-
-    const emailData = {
-        sender: {
-            email: process.env.SENDER_EMAIL || "support@hellotabeeb.com",
-            name: "HelloTabeeb Lab Services"
-        },
-        to: [{
-            email: email,
-            name: name
-        }],
-        subject: "Lab Test Booking Confirmation - HelloTabeeb",
-        htmlContent: generateEmailTemplate(name, testName, testFee, discountCode)
-    };
-
     try {
+        const requestId = Date.now();
+        const { name, email, phone, testName, testFee, discountCode } = req.query;
+        
+        logger.info('Starting email send process', { requestId, email });
+
+        const emailData = {
+            sender: {
+                email: process.env.SENDER_EMAIL || "support@hellotabeeb.com",
+                name: "HelloTabeeb Lab Services"
+            },
+            to: [{
+                email: email,
+                name: name
+            }],
+            subject: "Lab Test Booking Confirmation - HelloTabeeb",
+            htmlContent: generateEmailTemplate(name, testName, testFee, discountCode)
+        };
+
         const response = await axios.post('https://api.brevo.com/v3/smtp/email', emailData, {
             headers: {
                 'api-key': process.env.BREVO_API_KEY,
@@ -81,38 +84,39 @@ app.get('/send-email', validateEmailRequest, async (req, res) => {
             }
         });
 
-        logger.info('Email sent successfully', { 
+        logger.info('Email sent successfully', {
             requestId,
             messageId: response.data.messageId,
             recipient: email
         });
 
-        // Send only one response
-        return res.status(200).json({ 
+        return res.json({
             success: true,
             message: 'Email sent successfully',
             messageId: response.data.messageId
         });
 
     } catch (error) {
-        const errorDetails = {
-            requestId,
-            recipient: email,
-            errorMessage: error.message,
-            errorResponse: error.response?.data,
-            errorStatus: error.response?.status
-        };
+        logger.error('Failed to send email', {
+            error: error.message,
+            stack: error.stack
+        });
 
-        logger.error('Failed to send email', errorDetails);
-
-        // Send appropriate error response
-        return res.status(error.response?.status || 500).json({ 
+        return res.status(500).json({
             success: false,
             message: 'Failed to send email',
-            errorId: requestId,
-            details: process.env.NODE_ENV === 'development' ? error.message : undefined
+            error: error.message
         });
     }
+});
+
+// Add a catch-all error handler
+app.use((err, req, res, next) => {
+    logger.error('Unhandled error', { error: err });
+    res.status(500).json({
+        success: false,
+        message: 'Internal server error'
+    });
 });
 
 function generateEmailTemplate(name, testName, testFee, discountCode) {
