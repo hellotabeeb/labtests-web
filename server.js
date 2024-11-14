@@ -28,7 +28,15 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 // Middleware
-app.use(cors());
+// Update CORS configuration
+app.use(cors({
+    origin: process.env.NODE_ENV === 'production' 
+        ? 'https://labtestss.pages.dev/'  // Replace with your actual domain
+        : '*',
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['Content-Type', 'Accept'],
+    credentials: true
+}));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -55,27 +63,16 @@ const validateEmailRequest = (req, res, next) => {
     next();
 };
 
-// Email sending endpoint
+// Update the email sending endpoint error handling
 app.get('/send-email', validateEmailRequest, async (req, res) => {
     const requestId = Date.now();
     const { name, email, phone, testName, testFee, discountCode } = req.query;
     
     logger.info('Starting email send process', { requestId, email });
 
-    const emailData = {
-        sender: {
-            email: process.env.SENDER_EMAIL || "support@hellotabeeb.com",
-            name: "HelloTabeeb Lab Services"
-        },
-        to: [{
-            email: email,
-            name: name
-        }],
-        subject: "Lab Test Booking Confirmation - HelloTabeeb",
-        htmlContent: generateEmailTemplate(name, testName, testFee, discountCode)
-    };
-
     try {
+        // ... existing email sending code ...
+
         const response = await axios.post('https://api.brevo.com/v3/smtp/email', emailData, {
             headers: {
                 'api-key': process.env.BREVO_API_KEY,
@@ -85,12 +82,6 @@ app.get('/send-email', validateEmailRequest, async (req, res) => {
             timeout: 10000
         });
 
-        logger.info('Email sent successfully', { 
-            requestId,
-            messageId: response.data.messageId,
-            recipient: email
-        });
-
         res.json({ 
             success: true,
             message: 'Email sent successfully',
@@ -98,36 +89,50 @@ app.get('/send-email', validateEmailRequest, async (req, res) => {
         });
 
     } catch (error) {
-        const errorDetails = {
-            requestId,
-            recipient: email,
-            errorMessage: error.message,
-            errorResponse: error.response?.data,
-            errorStatus: error.response?.status
-        };
-
-        logger.error('Failed to send email', errorDetails);
-
-        if (error.code === 'ECONNABORTED') {
-            return res.status(504).json({ 
-                message: 'Email service timeout',
-                errorId: requestId
-            });
-        }
-
-        if (error.response?.status === 429) {
-            return res.status(429).json({ 
-                message: 'Too many requests to email service',
-                errorId: requestId
-            });
-        }
-
-        res.status(error.response?.status || 500).json({ 
+        // Always send JSON response, never HTML
+        const statusCode = error.response?.status || 500;
+        const errorResponse = {
+            success: false,
             message: 'Failed to send email',
             errorId: requestId,
-            details: process.env.NODE_ENV === 'development' ? error.message : undefined
+            details: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+        };
+
+        res.status(statusCode).json(errorResponse);
+        
+        // Log the error
+        logger.error('Email sending failed', {
+            requestId,
+            error: error.message,
+            stack: error.stack,
+            statusCode
         });
     }
+});
+
+// Global error handler - ensure it always returns JSON
+app.use((err, req, res, next) => {
+    const errorId = Date.now();
+    logger.error('Unhandled error:', { 
+        errorId,
+        error: err.message,
+        stack: err.stack
+    });
+
+    res.status(500).json({
+        success: false,
+        message: 'Internal server error',
+        errorId
+    });
+});
+
+// 404 handler - ensure it returns JSON
+app.use((req, res) => {
+    res.status(404).json({
+        success: false,
+        message: 'Not Found',
+        path: req.path
+    });
 });
 
 function generateEmailTemplate(name, testName, testFee, discountCode) {

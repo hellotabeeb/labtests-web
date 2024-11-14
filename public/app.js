@@ -340,7 +340,6 @@ const handleFormSubmit = async (e) => {
 };
 
 
-// In app.js - Update the sendEmailToServer function
 const sendEmailToServer = async (formData, codeInfo) => {
     try {
         const params = new URLSearchParams({
@@ -348,7 +347,7 @@ const sendEmailToServer = async (formData, codeInfo) => {
             email: formData.email,
             phone: formData.phone,
             testName: formData.testName,
-            testFee: formData.testFee.toString(), // Convert to string
+            testFee: formData.testFee.toString(),
             discountCode: codeInfo.code
         });
 
@@ -359,16 +358,26 @@ const sendEmailToServer = async (formData, codeInfo) => {
             }
         });
 
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Failed to send email');
+        // First check if the response is HTML (error page)
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('text/html')) {
+            throw new Error('Server returned HTML instead of JSON. Possible server error.');
         }
 
         const data = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(data.message || 'Failed to send email');
+        }
+
         return data;
     } catch (error) {
-        console.error('Error sending email to server:', error);
-        throw error;
+        console.error('Email server error:', {
+            message: error.message,
+            status: error.status,
+            statusText: error.statusText
+        });
+        throw new Error('Failed to send email. Please try again later.');
     }
 };
 
