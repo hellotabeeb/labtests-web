@@ -68,11 +68,12 @@ export async function moveCodeToAvailed(codeInfo, bookingDetails) {
     console.log('[Debug] Starting moveCodeToAvailed with:', { codeInfo });
     
     const batch = writeBatch(db);
-
     try {
-        // Reference to availedCodes collection
+        // 1. Reference to codes collection for deletion
+        const codeRef = doc(db, 'codes', codeInfo.docId);
+        
+        // 2. Reference to availedCodes collection for adding
         const availedCodesRef = collection(db, 'availedCodes');
-
         const availedCodeData = {
             code: codeInfo.code,
             userName: bookingDetails.name,
@@ -83,21 +84,18 @@ export async function moveCodeToAvailed(codeInfo, bookingDetails) {
             availedAt: new Date().toISOString()
         };
 
-        // Add to availedCodes
+        // 3. Add to availedCodes
         const newAvailedRef = doc(availedCodesRef);
         batch.set(newAvailedRef, availedCodeData);
+        
+        // 4. Delete from codes collection
+        batch.delete(codeRef);
 
-        // Update original code with isUsed as string
-        const codeRef = doc(db, 'codes', codeInfo.docId);
-        batch.update(codeRef, { 
-            isUsed: 'true', 
-            usedAt: new Date().toISOString() 
-        });
-
+        // 5. Commit the batch
         console.log('[Debug] Committing batch write');
         await batch.commit();
-        console.log('[Debug] Batch write successful');
-
+        console.log('[Debug] Successfully moved code to availedCodes');
+        
         return true;
     } catch (error) {
         console.error('[Debug] Error in moveCodeToAvailed:', {

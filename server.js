@@ -54,7 +54,6 @@ const validateEmailRequest = (req, res, next) => {
     next();
 };
 
-// Email sending endpoint
 app.get('/send-email', validateEmailRequest, async (req, res) => {
     const requestId = Date.now();
     const { name, email, phone, testName, testFee, discountCode } = req.query;
@@ -75,7 +74,7 @@ app.get('/send-email', validateEmailRequest, async (req, res) => {
     };
 
     try {
-                const response = await axios.post('https://api.brevo.com/v3/smtp/email', emailData, {
+        const response = await axios.post('https://api.brevo.com/v3/smtp/email', emailData, {
             headers: {
                 'api-key': process.env.BREVO_API_KEY,
                 'Content-Type': 'application/json'
@@ -88,7 +87,8 @@ app.get('/send-email', validateEmailRequest, async (req, res) => {
             recipient: email
         });
 
-        res.json({ 
+        // Send only one response
+        return res.status(200).json({ 
             success: true,
             message: 'Email sent successfully',
             messageId: response.data.messageId
@@ -105,21 +105,9 @@ app.get('/send-email', validateEmailRequest, async (req, res) => {
 
         logger.error('Failed to send email', errorDetails);
 
-        if (error.code === 'ECONNABORTED') {
-            return res.status(504).json({ 
-                message: 'Email service timeout',
-                errorId: requestId
-            });
-        }
-
-        if (error.response?.status === 429) {
-            return res.status(429).json({ 
-                message: 'Too many requests to email service',
-                errorId: requestId
-            });
-        }
-
-        res.status(error.response?.status || 500).json({ 
+        // Send appropriate error response
+        return res.status(error.response?.status || 500).json({ 
+            success: false,
             message: 'Failed to send email',
             errorId: requestId,
             details: process.env.NODE_ENV === 'development' ? error.message : undefined
