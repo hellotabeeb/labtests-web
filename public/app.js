@@ -339,9 +339,14 @@ const handleFormSubmit = async (e) => {
     }
 };
 
-
 const sendEmailToServer = async (formData, codeInfo) => {
     try {
+        console.log('Sending request with data:', {
+            formData,
+            codeInfo,
+            url: '/send-email'
+        });
+
         const params = new URLSearchParams({
             name: formData.name,
             email: formData.email,
@@ -351,31 +356,47 @@ const sendEmailToServer = async (formData, codeInfo) => {
             discountCode: codeInfo.code
         });
 
-        const response = await fetch(`/send-email?${params.toString()}`, {
+        const fullUrl = `/send-email?${params.toString()}`;
+        console.log('Full request URL:', fullUrl);
+
+        const response = await fetch(fullUrl, {
             method: 'GET',
             headers: {
-                'Accept': 'application/json'
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
             }
         });
 
-        // First check if the response is HTML (error page)
-        const contentType = response.headers.get('content-type');
-        if (contentType && contentType.includes('text/html')) {
-            throw new Error('Server returned HTML instead of JSON. Possible server error.');
+        console.log('Response status:', response.status);
+        console.log('Response headers:', Object.fromEntries(response.headers));
+
+        // Debug response
+        const responseText = await response.text();
+        console.log('Raw response:', responseText);
+
+        let data;
+        try {
+            data = JSON.parse(responseText);
+        } catch (parseError) {
+            console.error('Failed to parse response as JSON:', {
+                responseText,
+                error: parseError.message
+            });
+            throw new Error('Invalid JSON response from server');
         }
 
-        const data = await response.json();
-        
         if (!response.ok) {
             throw new Error(data.message || 'Failed to send email');
         }
 
         return data;
     } catch (error) {
-        console.error('Email server error:', {
+        console.error('Detailed email server error:', {
+            name: error.name,
             message: error.message,
-            status: error.status,
-            statusText: error.statusText
+            stack: error.stack,
+            response: error.response,
+            cause: error.cause
         });
         throw new Error('Failed to send email. Please try again later.');
     }

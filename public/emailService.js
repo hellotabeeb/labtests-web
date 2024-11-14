@@ -64,7 +64,6 @@ export async function getUnusedCode() {
 
 // emailService.js
 
-// emailService.js
 export async function moveCodeToAvailed(codeInfo, bookingDetails) {
     console.log('[Debug] Starting moveCodeToAvailed with:', { codeInfo });
     
@@ -88,13 +87,16 @@ export async function moveCodeToAvailed(codeInfo, bookingDetails) {
         const newAvailedRef = doc(availedCodesRef);
         batch.set(newAvailedRef, availedCodeData);
 
-        // Delete the original code instead of updating it
+        // Update original code with isUsed as string
         const codeRef = doc(db, 'codes', codeInfo.docId);
-        batch.delete(codeRef); // Changed from batch.update to batch.delete
+        batch.update(codeRef, { 
+            isUsed: 'true', 
+            usedAt: new Date().toISOString() 
+        });
 
         console.log('[Debug] Committing batch write');
         await batch.commit();
-        console.log('[Debug] Batch write successful - code deleted and moved to availedCodes');
+        console.log('[Debug] Batch write successful');
 
         return true;
     } catch (error) {

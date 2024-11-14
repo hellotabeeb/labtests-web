@@ -25,3 +25,5 @@
 {"level":"info","message":"Server started on port 3000","timestamp":"2024-11-14T09:49:44.722Z"}
 {"email":"ahadhellotabeeb@gmail.com","level":"info","message":"Starting email send process","requestId":1731577798333,"timestamp":"2024-11-14T09:49:58.334Z"}
 {"level":"info","message":"Email sent successfully","messageId":"<202411140949.66444566125@smtp-relay.mailin.fr>","recipient":"ahadhellotabeeb@gmail.com","requestId":1731577798333,"timestamp":"2024-11-14T09:49:59.306Z"}
+{"email":"ahadhellotabeeb@gmail.com","level":"info","message":"Starting email send process","requestId":1731578426297,"timestamp":"2024-11-14T10:00:26.298Z"}
+{"level":"info","message":"Email sent successfully","messageId":"<202411141000.37786009256@smtp-relay.mailin.fr>","recipient":"ahadhellotabeeb@gmail.com","requestId":1731578426297,"timestamp":"2024-11-14T10:00:27.116Z"}
