@@ -6,7 +6,7 @@ const app = express();
 const path = require('path');
 const axios = require('axios');
 const winston = require('winston');
-
+const cors = require('cors');
 
 // Configure Winston logger
 const logger = winston.createLogger({
@@ -28,26 +28,18 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 // Middleware
+app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Error handling middleware
-app.use((err, req, res, next) => {
-    logger.error('Unhandled error:', { 
-        error: err.message,
-        stack: err.stack,
-        path: req.path,
-        method: req.method 
-    });
-    res.status(500).json({ 
-        message: 'Internal server error',
-        errorId: Date.now() // For tracking in logs
-    });
+// Root route
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // Validation middleware
 const validateEmailRequest = (req, res, next) => {
-    const { name, email, phone, testName, testFee, discountCode } = req.body;
+    const { name, email, phone, testName, testFee, discountCode } = req.query;
     
     if (!name || !email || !phone || !testName || !testFee || !discountCode) {
         logger.warn('Invalid email request:', { 
@@ -63,12 +55,12 @@ const validateEmailRequest = (req, res, next) => {
     next();
 };
 
-// Email sending endpoint with improved error handling
-app.post('/send-email', validateEmailRequest, async (req, res) => {
+// Email sending endpoint
+app.get('/send-email', validateEmailRequest, async (req, res) => {
     const requestId = Date.now();
-    logger.info('Starting email send process', { requestId, email: req.body.email });
-
-    const { name, email, phone, testName, testFee, discountCode } = req.body;
+    const { name, email, phone, testName, testFee, discountCode } = req.query;
+    
+    logger.info('Starting email send process', { requestId, email });
 
     const emailData = {
         sender: {
@@ -90,7 +82,7 @@ app.post('/send-email', validateEmailRequest, async (req, res) => {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
             },
-            timeout: 10000 // 10 second timeout
+            timeout: 10000
         });
 
         logger.info('Email sent successfully', { 
@@ -99,7 +91,8 @@ app.post('/send-email', validateEmailRequest, async (req, res) => {
             recipient: email
         });
 
-        res.status(200).json({ 
+        res.json({ 
+            success: true,
             message: 'Email sent successfully',
             messageId: response.data.messageId
         });
@@ -115,7 +108,6 @@ app.post('/send-email', validateEmailRequest, async (req, res) => {
 
         logger.error('Failed to send email', errorDetails);
 
-        // Handle specific error cases
         if (error.code === 'ECONNABORTED') {
             return res.status(504).json({ 
                 message: 'Email service timeout',
@@ -170,6 +162,20 @@ function generateEmailTemplate(name, testName, testFee, discountCode) {
         </html>
     `;
 }
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+    logger.error('Unhandled error:', { 
+        error: err.message,
+        stack: err.stack,
+        path: req.path,
+        method: req.method 
+    });
+    res.status(500).json({ 
+        message: 'Internal server error',
+        errorId: Date.now()
+    });
+});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

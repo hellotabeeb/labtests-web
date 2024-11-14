@@ -1,8 +1,7 @@
 // app.js
 // app.js
 import { db } from './firebase-config.js';
-import { collection, getDocs, query, where , limit} from 'https://www.gstatic.com/firebasejs/9.1.3/firebase-firestore.js';
-
+import { collection, getDocs, query, where, limit } from 'https://www.gstatic.com/firebasejs/9.1.3/firebase-firestore.js';
 
 import { getUnusedCode, moveCodeToAvailed } from './emailService.js'; // Remove sendConfirmationEmail import
 
@@ -341,34 +340,34 @@ const handleFormSubmit = async (e) => {
 };
 
 
-// Function to send email data to the server
+// In app.js - Update the sendEmailToServer function
 const sendEmailToServer = async (formData, codeInfo) => {
     try {
-        const response = await fetch('/send-email', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                name: formData.name,
-                email: formData.email,
-                phone: formData.phone,
-                testName: formData.testName,
-                testFee: formData.testFee,
-                discountCode: codeInfo.code
-            })
+        const params = new URLSearchParams({
+            name: formData.name,
+            email: formData.email,
+            phone: formData.phone,
+            testName: formData.testName,
+            testFee: formData.testFee.toString(), // Convert to string
+            discountCode: codeInfo.code
         });
 
-        const data = await response.json();
+        const response = await fetch(`/send-email?${params.toString()}`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
 
         if (!response.ok) {
-            throw new Error(data.message || 'Failed to send email.');
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Failed to send email');
         }
 
+        const data = await response.json();
         return data;
     } catch (error) {
         console.error('Error sending email to server:', error);
-        alert('Failed to send confirmation email. Please contact support.');
         throw error;
     }
 };

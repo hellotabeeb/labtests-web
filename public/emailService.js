@@ -1,6 +1,5 @@
-// emailService.js
-
 import { collection, getDocs, query, where, writeBatch, doc, limit } from 'https://www.gstatic.com/firebasejs/9.1.3/firebase-firestore.js';
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.1.3/firebase-app.js';
 import { db } from './firebase-config.js';
 
 export async function getUnusedCode() {
@@ -12,13 +11,12 @@ export async function getUnusedCode() {
         const codesRef = collection(db, 'codes');
         console.log('[Debug] Obtained collection reference for "codes"');
 
-        // Create query for isUsed == 'false'
-        const codesQuery = query(
-            codesRef,
-            where('isUsed', '==', 'false'),
-            limit(1)
-        );
-        console.log('[Debug] Created query for isUsed == "false"');
+                  const codesQuery = query(
+                codesRef,
+                where('isUsed', '==', 'false'),  // Change to string 'false'
+                limit(1)
+            );
+        console.log('[Debug] Created query for isUsed == false');
 
         // Execute query
         const snapshot = await getDocs(codesQuery);
@@ -66,6 +64,7 @@ export async function getUnusedCode() {
 
 // emailService.js
 
+// emailService.js
 export async function moveCodeToAvailed(codeInfo, bookingDetails) {
     console.log('[Debug] Starting moveCodeToAvailed with:', { codeInfo });
     
@@ -89,16 +88,13 @@ export async function moveCodeToAvailed(codeInfo, bookingDetails) {
         const newAvailedRef = doc(availedCodesRef);
         batch.set(newAvailedRef, availedCodeData);
 
-        // Update original code with isUsed as string
+        // Delete the original code instead of updating it
         const codeRef = doc(db, 'codes', codeInfo.docId);
-        batch.update(codeRef, { 
-            isUsed: 'true', 
-            usedAt: new Date().toISOString() 
-        });
+        batch.delete(codeRef); // Changed from batch.update to batch.delete
 
         console.log('[Debug] Committing batch write');
         await batch.commit();
-        console.log('[Debug] Batch write successful');
+        console.log('[Debug] Batch write successful - code deleted and moved to availedCodes');
 
         return true;
     } catch (error) {
