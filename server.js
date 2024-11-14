@@ -27,16 +27,7 @@ if (process.env.NODE_ENV !== 'production') {
     }));
 }
 
-// Middleware
-// Update CORS configuration
-app.use(cors({
-    origin: process.env.NODE_ENV === 'production' 
-        ? 'https://labtestss.pages.dev/'  // Replace with your actual domain
-        : '*',
-    methods: ['GET', 'POST'],
-    allowedHeaders: ['Content-Type', 'Accept'],
-    credentials: true
-}));
+
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -84,13 +75,11 @@ app.get('/send-email', validateEmailRequest, async (req, res) => {
     };
 
     try {
-        const response = await axios.post('https://api.brevo.com/v3/smtp/email', emailData, {
+                const response = await axios.post('https://api.brevo.com/v3/smtp/email', emailData, {
             headers: {
                 'api-key': process.env.BREVO_API_KEY,
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            timeout: 10000
+                'Content-Type': 'application/json'
+            }
         });
 
         logger.info('Email sent successfully', { 

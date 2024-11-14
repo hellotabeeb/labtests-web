@@ -27,3 +27,25 @@
 {"level":"info","message":"Email sent successfully","messageId":"<202411140949.66444566125@smtp-relay.mailin.fr>","recipient":"ahadhellotabeeb@gmail.com","requestId":1731577798333,"timestamp":"2024-11-14T09:49:59.306Z"}
 {"email":"ahadhellotabeeb@gmail.com","level":"info","message":"Starting email send process","requestId":1731578426297,"timestamp":"2024-11-14T10:00:26.298Z"}
 {"level":"info","message":"Email sent successfully","messageId":"<202411141000.37786009256@smtp-relay.mailin.fr>","recipient":"ahadhellotabeeb@gmail.com","requestId":1731578426297,"timestamp":"2024-11-14T10:00:27.116Z"}
+{"email":"ahadhellotabeeb@gmail.com","level":"info","message":"Starting email send process","requestId":1731579974462,"timestamp":"2024-11-14T10:26:14.463Z"}
+{"level":"info","message":"Email sent successfully","messageId":"<202411141026.74708104506@smtp-relay.mailin.fr>","recipient":"ahadhellotabeeb@gmail.com","requestId":1731579974462,"timestamp":"2024-11-14T10:26:15.739Z"}
+{"email":"ahadhellotabeeb@gmail.com","level":"info","message":"Starting email send process","requestId":1731581030473,"timestamp":"2024-11-14T10:43:50.473Z"}
+{"level":"info","message":"Email sent successfully","messageId":"<202411141043.18410009639@smtp-relay.mailin.fr>","recipient":"ahadhellotabeeb@gmail.com","requestId":1731581030473,"timestamp":"2024-11-14T10:43:51.368Z"}
+{"email":"ahadhellotabeeb@gmail.com","level":"info","message":"Starting email send process","requestId":1731581476504,"timestamp":"2024-11-14T10:51:16.504Z"}
+{"errorMessage":"Request failed with status code 401","errorResponse":{"code":"unauthorized","message":"Key not found"},"errorStatus":401,"level":"error","message":"Failed to send email","recipient":"ahadhellotabeeb@gmail.com","requestId":1731581476504,"timestamp":"2024-11-14T10:51:17.386Z"}
+{"email":"ahadhellotabeeb@gmail.com","level":"info","message":"Starting email send process","requestId":1731581628460,"timestamp":"2024-11-14T10:53:48.460Z"}
+{"errorMessage":"Request failed with status code 401","errorResponse":{"code":"unauthorized","message":"Key not found"},"errorStatus":401,"level":"error","message":"Failed to send email","recipient":"ahadhellotabeeb@gmail.com","requestId":1731581628460,"timestamp":"2024-11-14T10:53:49.040Z"}
+{"email":"ahadhellotabeeb@gmail.com","level":"info","message":"Starting email send process","requestId":1731581819249,"timestamp":"2024-11-14T10:56:59.249Z"}
+{"errorMessage":"Request failed with status code 401","errorResponse":{"code":"unauthorized","message":"Key not found"},"errorStatus":401,"level":"error","message":"Failed to send email","recipient":"ahadhellotabeeb@gmail.com","requestId":1731581819249,"timestamp":"2024-11-14T10:56:59.997Z"}
+{"email":"ahadhellotabeeb@gmail.com","level":"info","message":"Starting email send process","requestId":1731582134993,"timestamp":"2024-11-14T11:02:14.994Z"}
+{"errorMessage":"Request failed with status code 401","errorResponse":{"code":"unauthorized","message":"Key not found"},"errorStatus":401,"level":"error","message":"Failed to send email","recipient":"ahadhellotabeeb@gmail.com","requestId":1731582134993,"timestamp":"2024-11-14T11:02:15.785Z"}
+{"level":"info","message":"Server started on port 3000","timestamp":"2024-11-14T11:03:02.784Z"}
+{"email":"ahadhellotabeeb@gmail.com","level":"info","message":"Starting email send process","requestId":1731582230799,"timestamp":"2024-11-14T11:03:50.800Z"}
+{"errorMessage":"Request failed with status code 401","errorResponse":{"code":"unauthorized","message":"Key not found"},"errorStatus":401,"level":"error","message":"Failed to send email","recipient":"ahadhellotabeeb@gmail.com","requestId":1731582230799,"timestamp":"2024-11-14T11:03:51.537Z"}
+{"email":"ahadhellotabeeb@gmail.com","level":"info","message":"Starting email send process","requestId":1731583820605,"timestamp":"2024-11-14T11:30:20.605Z"}
+{"errorMessage":"Request failed with status code 401","errorResponse":{"code":"unauthorized","message":"Key not found"},"errorStatus":401,"level":"error","message":"Failed to send email","recipient":"ahadhellotabeeb@gmail.com","requestId":1731583820605,"timestamp":"2024-11-14T11:30:21.965Z"}
+{"level":"info","message":"Server started on port 3000","timestamp":"2024-11-14T11:34:29.716Z"}
+{"email":"ahadhellotabeeb@gmail.com","level":"info","message":"Starting email send process","requestId":1731584116310,"timestamp":"2024-11-14T11:35:16.311Z"}
+{"level":"info","message":"Email sent successfully","messageId":"<202411141135.84639723400@smtp-relay.mailin.fr>","recipient":"ahadhellotabeeb@gmail.com","requestId":1731584116310,"timestamp":"2024-11-14T11:35:17.208Z"}
+{"email":"ahadhellotabeeb@gmail.com","level":"info","message":"Starting email send process","requestId":1731584245753,"timestamp":"2024-11-14T11:37:25.753Z"}
+{"level":"info","message":"Email sent successfully","messageId":"<202411141137.15174196199@smtp-relay.mailin.fr>","recipient":"ahadhellotabeeb@gmail.com","requestId":1731584245753,"timestamp":"2024-11-14T11:37:26.500Z"}
