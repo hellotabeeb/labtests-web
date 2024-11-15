@@ -339,7 +339,6 @@ const handleFormSubmit = async (e) => {
     }
 };
 
-// Update just the sendEmailToServer function in app.js
 const sendEmailToServer = async (formData, codeInfo) => {
     try {
         // Create URL parameters
@@ -356,7 +355,7 @@ const sendEmailToServer = async (formData, codeInfo) => {
         const response = await fetch(`/send-email?${params.toString()}`, {
             method: 'GET',
             headers: {
-                'Accept': 'application/json'
+                'Accept': 'text/html'
             }
         });
 
@@ -365,23 +364,22 @@ const sendEmailToServer = async (formData, codeInfo) => {
         }
 
         const contentType = response.headers.get('content-type');
-        if (!contentType || !contentType.includes('application/json')) {
+        if (!contentType || !contentType.includes('text/html')) {
             console.error('Invalid content type:', contentType);
             throw new Error('Server returned invalid response format');
         }
 
-        const data = await response.json();
-        
-        if (!data.success) {
-            throw new Error(data.message || 'Email sending failed');
-        }
+        const html = await response.text();
+        document.body.innerHTML = html; // Display the HTML response in the browser
 
-        return data;
+        return html; // Return the HTML for further processing if needed
     } catch (error) {
         console.error('Email server error:', error);
-        throw new Error('Failed to send email. Please try again later.');
+        alert('Failed to send email. Please try again later.');
+        throw error;
     }
 };
+
 
 // Event Listeners
 elements.testSearch.addEventListener('input', handleSearch);

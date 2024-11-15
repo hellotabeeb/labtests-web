@@ -56,13 +56,13 @@ const validateEmailRequest = (req, res, next) => {
 };
 
 app.get('/send-email', validateEmailRequest, async (req, res) => {
-    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Type', 'text/html');
     res.setHeader('Access-Control-Allow-Origin', '*');
-    
+
     try {
         const requestId = Date.now();
         const { name, email, phone, testName, testFee, discountCode } = req.query;
-        
+
         logger.info('Starting email send process', { requestId, email });
 
         const emailData = {
@@ -92,25 +92,38 @@ app.get('/send-email', validateEmailRequest, async (req, res) => {
             recipient: email
         });
 
-        return res.json({
-            success: true,
-            message: 'Email sent successfully',
-            messageId: response.data.messageId
-        });
+        // Return an HTML response on success
+        return res.send(`
+            <html>
+                <body>
+                    <h1>Email Sent Successfully</h1>
+                    <p>The email to ${email} has been sent successfully.</p>
+                    <p>Message ID: ${response.data.messageId}</p>
+                </body>
+            </html>
+        `);
 
     } catch (error) {
+        // Print the full error details to the server console
+        console.error(error);
+
         logger.error('Failed to send email', {
             error: error.message,
             stack: error.stack
         });
 
-        return res.status(500).json({
-            success: false,
-            message: 'Failed to send email',
-            error: error.message
-        });
+        // Return an HTML response for errors
+        return res.status(500).send(`
+            <html>
+                <body>
+                    <h1>Failed to send email</h1>
+                    <p>Error: ${error.message}</p>
+                </body>
+            </html>
+        `);
     }
 });
+
 
 // Add a catch-all error handler
 app.use((err, req, res, next) => {
