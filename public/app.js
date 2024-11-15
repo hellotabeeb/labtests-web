@@ -339,8 +339,10 @@ const handleFormSubmit = async (e) => {
     }
 };
 
+// Update just the sendEmailToServer function in app.js
 const sendEmailToServer = async (formData, codeInfo) => {
     try {
+        // Create URL parameters
         const params = new URLSearchParams({
             name: formData.name,
             email: formData.email,
@@ -350,6 +352,7 @@ const sendEmailToServer = async (formData, codeInfo) => {
             discountCode: codeInfo.code
         });
 
+        // Make GET request with parameters
         const response = await fetch(`/send-email?${params.toString()}`, {
             method: 'GET',
             headers: {
@@ -357,12 +360,18 @@ const sendEmailToServer = async (formData, codeInfo) => {
             }
         });
 
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
         const contentType = response.headers.get('content-type');
         if (!contentType || !contentType.includes('application/json')) {
+            console.error('Invalid content type:', contentType);
             throw new Error('Server returned invalid response format');
         }
 
         const data = await response.json();
+        
         if (!data.success) {
             throw new Error(data.message || 'Email sending failed');
         }

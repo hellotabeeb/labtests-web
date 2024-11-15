@@ -27,9 +27,9 @@ if (process.env.NODE_ENV !== 'production') {
     }));
 }
 
-
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(cors()); // Enable CORS for all routes
 
 // Root route
 app.get('/', (req, res) => {
@@ -47,6 +47,7 @@ const validateEmailRequest = (req, res, next) => {
                 .map(([key]) => key)
         });
         return res.status(400).json({ 
+            success: false,
             message: 'Missing required fields',
             details: 'All fields (name, email, phone, testName, testFee, discountCode) are required'
         });
@@ -55,8 +56,8 @@ const validateEmailRequest = (req, res, next) => {
 };
 
 app.get('/send-email', validateEmailRequest, async (req, res) => {
-    // Set response headers early
     res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Access-Control-Allow-Origin', '*');
     
     try {
         const requestId = Date.now();
@@ -80,7 +81,8 @@ app.get('/send-email', validateEmailRequest, async (req, res) => {
         const response = await axios.post('https://api.brevo.com/v3/smtp/email', emailData, {
             headers: {
                 'api-key': process.env.BREVO_API_KEY,
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
             }
         });
 
