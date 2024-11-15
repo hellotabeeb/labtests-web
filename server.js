@@ -27,9 +27,9 @@ if (process.env.NODE_ENV !== 'production') {
     }));
 }
 
+
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(cors()); // Enable CORS for all routes
 
 // Root route
 app.get('/', (req, res) => {
@@ -47,7 +47,6 @@ const validateEmailRequest = (req, res, next) => {
                 .map(([key]) => key)
         });
         return res.status(400).json({ 
-            success: false,
             message: 'Missing required fields',
             details: 'All fields (name, email, phone, testName, testFee, discountCode) are required'
         });
@@ -55,14 +54,15 @@ const validateEmailRequest = (req, res, next) => {
     next();
 };
 
-app.get('/send-email', validateEmailRequest, async (req, res) => {
-    res.setHeader('Content-Type', 'text/html');
-    res.setHeader('Access-Control-Allow-Origin', '*');
 
+app.get('/send-email', validateEmailRequest, async (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    
     try {
         const requestId = Date.now();
         const { name, email, phone, testName, testFee, discountCode } = req.query;
-
+        
         logger.info('Starting email send process', { requestId, email });
 
         const emailData = {
@@ -92,38 +92,25 @@ app.get('/send-email', validateEmailRequest, async (req, res) => {
             recipient: email
         });
 
-        // Return an HTML response on success
-        return res.send(`
-            <html>
-                <body>
-                    <h1>Email Sent Successfully</h1>
-                    <p>The email to ${email} has been sent successfully.</p>
-                    <p>Message ID: ${response.data.messageId}</p>
-                </body>
-            </html>
-        `);
+        return res.json({
+            success: true,
+            message: 'Email sent successfully',
+            messageId: response.data.messageId
+        });
 
     } catch (error) {
-        // Print the full error details to the server console
-        console.error(error);
-
         logger.error('Failed to send email', {
             error: error.message,
             stack: error.stack
         });
 
-        // Return an HTML response for errors
-        return res.status(500).send(`
-            <html>
-                <body>
-                    <h1>Failed to send email</h1>
-                    <p>Error: ${error.message}</p>
-                </body>
-            </html>
-        `);
+        return res.status(500).json({
+            success: false,
+            message: 'Failed to send email',
+            error: error.message
+        });
     }
 });
-
 
 // Add a catch-all error handler
 app.use((err, req, res, next) => {

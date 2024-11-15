@@ -341,7 +341,6 @@ const handleFormSubmit = async (e) => {
 
 const sendEmailToServer = async (formData, codeInfo) => {
     try {
-        // Create URL parameters
         const params = new URLSearchParams({
             name: formData.name,
             email: formData.email,
@@ -351,35 +350,29 @@ const sendEmailToServer = async (formData, codeInfo) => {
             discountCode: codeInfo.code
         });
 
-        // Make GET request with parameters
         const response = await fetch(`/send-email?${params.toString()}`, {
             method: 'GET',
             headers: {
-                'Accept': 'text/html'
+                'Accept': 'application/json'
             }
         });
 
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
         const contentType = response.headers.get('content-type');
-        if (!contentType || !contentType.includes('text/html')) {
-            console.error('Invalid content type:', contentType);
+        if (!contentType || !contentType.includes('application/json')) {
             throw new Error('Server returned invalid response format');
         }
 
-        const html = await response.text();
-        document.body.innerHTML = html; // Display the HTML response in the browser
+        const data = await response.json();
+        if (!data.success) {
+            throw new Error(data.message || 'Email sending failed');
+        }
 
-        return html; // Return the HTML for further processing if needed
+        return data;
     } catch (error) {
         console.error('Email server error:', error);
-        alert('Failed to send email. Please try again later.');
-        throw error;
+        throw new Error('Failed to send email. Please try again later.');
     }
 };
-
 
 // Event Listeners
 elements.testSearch.addEventListener('input', handleSearch);
